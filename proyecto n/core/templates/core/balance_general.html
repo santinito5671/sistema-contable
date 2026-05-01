@@ -1,0 +1,195 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Balance General - Contabilidad SA{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-balance-scale"></i> Balance General</h2>
+    <div>
+        <a href="/exportar/balance-csv/" class="btn btn-outline-success">
+            <i class="fas fa-download"></i> Exportar
+        </a>
+        <a href="/" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-file-invoice-dollar"></i> Balance General - {{ periodo }}
+        </h5>
+    </div>
+    <div class="card-body">
+        <!-- Estado de la ecuación contable -->
+        <div class="alert {% if balanceado %}alert-success{% else %}alert-danger{% endif %} mb-4">
+            <h6 class="alert-heading">
+                <i class="fas fa-{% if balanceado %}check-circle{% else %}exclamation-triangle{% endif %}"></i>
+                ECUACIÓN CONTABLE: ACTIVO = PASIVO + PATRIMONIO
+            </h6>
+            <p class="mb-0">
+                <strong>Activo:</strong> ${{ activos|floatformat:2 }} | 
+                <strong>Pasivo:</strong> ${{ pasivos|floatformat:2 }} | 
+                <strong>Patrimonio:</strong> ${{ patrimonio|floatformat:2 }} |
+                <strong>Total Pasivo + Patrimonio:</strong> ${{ total_pasivo_patrimonio|floatformat:2 }}
+                {% if not balanceado %}
+                <br><strong class="text-danger">Diferencia: ${{ diferencia|floatformat:2 }}</strong>
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="row">
+            <!-- ACTIVOS -->
+            <div class="col-md-6">
+                <div class="card border-success">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0"><i class="fas fa-wallet"></i> ACTIVO</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if detalle_activos %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Cuenta</th>
+                                        <th class="text-end">Saldo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for activo in detalle_activos %}
+                                    <tr>
+                                        <td>
+                                            <small>{{ activo.cuenta__codigo }}</small><br>
+                                            <small class="text-muted">{{ activo.cuenta__nombre_cuenta }}</small>
+                                        </td>
+                                        <td class="text-end text-success">
+                                            <strong>${{ activo.total|floatformat:2 }}</strong>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot class="table-success">
+                                    <tr>
+                                        <td><strong>TOTAL ACTIVO</strong></td>
+                                        <td class="text-end"><strong>${{ activos|floatformat:2 }}</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center">No hay activos registrados</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASIVO Y PATRIMONIO -->
+            <div class="col-md-6">
+                <!-- PASIVOS -->
+                <div class="card border-danger mb-3">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0"><i class="fas fa-hand-holding-usd"></i> PASIVO</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if detalle_pasivos %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Cuenta</th>
+                                        <th class="text-end">Saldo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for pasivo in detalle_pasivos %}
+                                    <tr>
+                                        <td>
+                                            <small>{{ pasivo.cuenta__codigo }}</small><br>
+                                            <small class="text-muted">{{ pasivo.cuenta__nombre_cuenta }}</small>
+                                        </td>
+                                        <td class="text-end text-danger">
+                                            <strong>${{ pasivo.total|floatformat:2 }}</strong>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot class="table-danger">
+                                    <tr>
+                                        <td><strong>TOTAL PASIVO</strong></td>
+                                        <td class="text-end"><strong>${{ pasivos|floatformat:2 }}</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center">No hay pasivos registrados</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- PATRIMONIO -->
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="fas fa-landmark"></i> PATRIMONIO</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if detalle_patrimonio %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Cuenta</th>
+                                        <th class="text-end">Saldo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for pat in detalle_patrimonio %}
+                                    <tr>
+                                        <td>
+                                            <small>{{ pat.cuenta__codigo }}</small><br>
+                                            <small class="text-muted">{{ pat.cuenta__nombre_cuenta }}</small>
+                                        </td>
+                                        <td class="text-end text-primary">
+                                            <strong>${{ pat.total|floatformat:2 }}</strong>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot class="table-primary">
+                                    <tr>
+                                        <td><strong>TOTAL PATRIMONIO</strong></td>
+                                        <td class="text-end"><strong>${{ patrimonio|floatformat:2 }}</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center">No hay patrimonio registrado</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- TOTAL PASIVO + PATRIMONIO -->
+                <div class="card border-dark mt-3">
+                    <div class="card-header bg-dark text-white">
+                        <h6 class="mb-0"><i class="fas fa-calculator"></i> TOTAL PASIVO + PATRIMONIO</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <h3 class="{% if balanceado %}text-success{% else %}text-danger{% endif %}">
+                            ${{ total_pasivo_patrimonio|floatformat:2 }}
+                        </h3>
+                        <small class="text-muted">
+                            {% if balanceado %}
+                            <i class="fas fa-check-circle text-success"></i> Balance correcto
+                            {% else %}
+                            <i class="fas fa-exclamation-triangle text-danger"></i> Desbalance detectado
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Dashboard - Contabilidad SA{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <i class="fas fa-wallet fa-2x text-primary mb-3"></i>
+                <h3 class="stat-number">{{ total_asientos }}</h3>
+                <p class="text-muted">Total Asientos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <i class="fas fa-file-invoice-dollar fa-2x text-success mb-3"></i>
+                <h3 class="stat-number">{{ total_cuentas }}</h3>
+                <p class="text-muted">Cuentas Activas</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <i class="fas fa-chart-line fa-2x text-info mb-3"></i>
+                <h3 class="stat-number">
+                    {% if ultimos_asientos %}{{ ultimos_asientos|length }}{% else %}0{% endif %}
+                </h3>
+                <p class="text-muted">Asientos Recientes</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <i class="fas fa-balance-scale fa-2x text-warning mb-3"></i>
+                <h3 class="stat-number">
+                    {% if total_asientos > 0 %}
+                        {{ total_asientos }}
+                    {% else %}
+                        0
+                    {% endif %}
+                </h3>
+                <p class="text-muted">Sistema Activo</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-history"></i> Últimos Asientos Contables
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if ultimos_asientos %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Fecha</th>
+                                <th>Concepto</th>
+                                <th class="text-end">Debe</th>
+                                <th class="text-end">Haber</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for asiento in ultimos_asientos %}
+                            <tr>
+                                <td><strong>#{{ asiento.numero_asiento }}</strong></td>
+                                <td>{{ asiento.fecha }}</td>
+                                <td>{{ asiento.concepto|truncatewords:5 }}</td>
+                                <td class="text-end text-success">${{ asiento.total_debe }}</td>
+                                <td class="text-end text-danger">${{ asiento.total_haber }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No hay asientos contables registrados.</p>
+                <a href="/asientos/crear/" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Crear Primer Asiento
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-rocket"></i> Acciones Rápidas
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="/asientos/crear/" class="btn btn-outline-primary">
+                        <i class="fas fa-plus"></i> Nuevo Asiento
+                    </a>
+                    <a href="/asientos/" class="btn btn-outline-success">
+                        <i class="fas fa-list"></i> Ver Todos los Asientos
+                    </a>
+                    <a href="/reportes/estado-resultados/" class="btn btn-outline-info">
+                        <i class="fas fa-chart-line"></i> Estado de Resultados
+                    </a>
+                    <a href="/reportes/balance-general/" class="btn btn-outline-warning">
+                        <i class="fas fa-balance-scale"></i> Balance General
+                    </a>
+                </div>
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

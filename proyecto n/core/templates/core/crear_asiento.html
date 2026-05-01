@@ -1,0 +1,166 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Crear Asiento - Contabilidad SA{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-plus"></i> Crear Asiento Contable</h2>
+    <a href="/asientos/" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Información básica del asiento -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Fecha *</label>
+                        <input type="date" class="form-control" name="fecha" required>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Número de Asiento</label>
+                        <input type="text" class="form-control" value="Automático" disabled>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Ejercicio Contable *</label>
+                        <select class="form-select" name="ejercicio" required>
+                            <option value="">Seleccionar ejercicio...</option>
+                            {% for ejercicio in ejercicios %}
+                                <option value="{{ ejercicio.id }}">{{ ejercicio.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Concepto -->
+            <div class="mb-3">
+                <label class="form-label">Concepto *</label>
+                <textarea class="form-control" name="concepto" rows="3" placeholder="Descripción del asiento contable..." required></textarea>
+            </div>
+
+            <!-- Detalles del asiento -->
+            <div class="mb-4">
+                <h5 class="mb-3">
+                    <i class="fas fa-list"></i> Detalles del Asiento
+                </h5>
+                
+                <!-- Línea 1 -->
+                <div class="row mb-3 border-bottom pb-3">
+                    <div class="col-md-5">
+                        <label class="form-label">Cuenta Contable *</label>
+                        <select class="form-select" name="cuenta_1" required>
+                            <option value="">Seleccionar cuenta...</option>
+                            {% for cuenta in cuentas %}
+                                <option value="{{ cuenta.id }}">{{ cuenta.codigo }} - {{ cuenta.nombre_cuenta }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Debe</label>
+                        <input type="number" class="form-control" name="debe_1" step="0.01" min="0" placeholder="0.00">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Haber</label>
+                        <input type="number" class="form-control" name="haber_1" step="0.01" min="0" placeholder="0.00">
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="form-text text-center">1</div>
+                    </div>
+                </div>
+
+                <!-- Línea 2 -->
+                <div class="row mb-3 border-bottom pb-3">
+                    <div class="col-md-5">
+                        <select class="form-select" name="cuenta_2">
+                            <option value="">Seleccionar cuenta...</option>
+                            {% for cuenta in cuentas %}
+                                <option value="{{ cuenta.id }}">{{ cuenta.codigo }} - {{ cuenta.nombre_cuenta }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" class="form-control" name="debe_2" step="0.01" min="0" placeholder="0.00">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" class="form-control" name="haber_2" step="0.01" min="0" placeholder="0.00">
+                    </div>
+                    <div class="col-md-1">
+                        <div class="form-text text-center">2</div>
+                    </div>
+                </div>
+
+                <!-- Totales -->
+                <div class="row mt-4">
+                    <div class="col-md-8 offset-md-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6>Total Debe</h6>
+                                        <h4 class="text-success" id="total-debe">$0.00</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h6>Total Haber</h6>
+                                        <h4 class="text-danger" id="total-haber">$0.00</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-save"></i> Guardar Asiento
+                </button>
+                <a href="/asientos/" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Cálculo automático de totales
+function calcularTotales() {
+    let totalDebe = 0;
+    let totalHaber = 0;
+
+    // Sumar valores de debe
+    for (let i = 1; i <= 2; i++) {
+        const debe = parseFloat(document.querySelector(`[name="debe_${i}"]`).value) || 0;
+        const haber = parseFloat(document.querySelector(`[name="haber_${i}"]`).value) || 0;
+        totalDebe += debe;
+        totalHaber += haber;
+    }
+
+    // se actualizar display
+    document.getElementById('total-debe').textContent = '$' + totalDebe.toFixed(2);
+    document.getElementById('total-haber').textContent = '$' + totalHaber.toFixed(2);
+}
+
+// se agregan event listeners a los campos de monto
+for (let i = 1; i <= 2; i++) {
+    document.querySelector(`[name="debe_${i}"]`).addEventListener('input', calcularTotales);
+    document.querySelector(`[name="haber_${i}"]`).addEventListener('input', calcularTotales);
+}
+</script>
+{% endblock %}

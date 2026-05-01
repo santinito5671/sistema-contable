@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Contable - Sociedad Anónima</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            background-color: #2c3e50;
+            min-height: 100vh;
+            color: white;
+        }
+        .sidebar .nav-link {
+            color: #ecf0f1;
+            padding: 15px 20px;
+            border-left: 4px solid transparent;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #34495e;
+            border-left: 4px solid #3498db;
+        }
+        .sidebar .nav-link.active {
+            background-color: #34495e;
+            border-left: 4px solid #3498db;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <h4 class="text-center mb-4">
+                        <i class="fas fa-chart-line"></i>
+                        Contabilidad SA
+                    </h4>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="fas fa-home"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/asientos/">
+                                <i class="fas fa-book"></i> Asientos Contables
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/reportes/estado-resultados/">
+                                <i class="fas fa-chart-line"></i> Estado de Resultados
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/reportes/balance-general/">
+                                <i class="fas fa-balance-scale"></i> Balance General
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/reportes/balance/">
+                                <i class="fas fa-file-invoice-dollar"></i> Balance Comprobación
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/reportes/libro-mayor/">
+                                <i class="fas fa-book"></i> Libro Mayor
+                            </a>
+                        </li>
+                        
+                        <!-- Menú Documentos Desplegable -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                <i class="fas fa-folder"></i> Documentos
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/importar/asientos-csv/"><i class="fas fa-upload text-primary"></i> Importar CSV</a></li>
+                                <li><a class="dropdown-item" href="/exportar/asientos-csv/"><i class="fas fa-download text-success"></i> Exportar Asientos</a></li>
+                                <li><a class="dropdown-item" href="/exportar/balance-csv/"><i class="fas fa-file-export text-info"></i> Exportar Balance</a></li>
+                                <li><a class="dropdown-item" href="/exportar/plantilla-csv/"><i class="fas fa-file-download text-warning"></i> Plantilla CSV</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin/">
+                                <i class="fas fa-cog"></i> Administración
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">{% block title %}Sistema Contable{% endblock %}</h1>
+                </div>
+                
+                {% block content %}
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

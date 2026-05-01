@@ -1,0 +1,218 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Libro Mayor - Contabilidad SA{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-book"></i> Libro Mayor por Cuenta</h2>
+    <a href="/" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+</div>
+
+<!-- Selector de Cuenta -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-search"></i> Seleccionar Cuenta Contable
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-8">
+                <label class="form-label">Cuenta Contable</label>
+                <select name="cuenta_id" class="form-select" required>
+                    <option value="">Seleccionar una cuenta...</option>
+                    {% for cuenta in cuentas %}
+                    <option value="{{ cuenta.id }}" 
+                            {% if cuenta_seleccionada and cuenta_seleccionada.id == cuenta.id %}selected{% endif %}>
+                        {{ cuenta.codigo }} - {{ cuenta.nombre_cuenta }} ({{ cuenta.get_tipo_cuenta_display }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i> Consultar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if cuenta_seleccionada %}
+<!-- Información de la Cuenta -->
+<div class="card mb-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-file-invoice"></i> Información de la Cuenta
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <strong>Código:</strong><br>
+                <h4>{{ cuenta_seleccionada.codigo }}</h4>
+            </div>
+            <div class="col-md-5">
+                <strong>Nombre:</strong><br>
+                <h4>{{ cuenta_seleccionada.nombre_cuenta }}</h4>
+            </div>
+            <div class="col-md-2">
+                <strong>Tipo:</strong><br>
+                <span class="badge 
+                    {% if cuenta_seleccionada.tipo_cuenta == 'A' %}bg-success
+                    {% elif cuenta_seleccionada.tipo_cuenta == 'P' %}bg-danger
+                    {% elif cuenta_seleccionada.tipo_cuenta == 'C' %}bg-primary
+                    {% elif cuenta_seleccionada.tipo_cuenta == 'I' %}bg-warning
+                    {% else %}bg-secondary{% endif %}">
+                    {{ cuenta_seleccionada.get_tipo_cuenta_display }}
+                </span>
+            </div>
+            <div class="col-md-2">
+                <strong>Saldo Actual:</strong><br>
+                <h4 class="{% if saldo_actual >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    ${{ saldo_actual|floatformat:2 }}
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Movimientos de la Cuenta -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-list"></i> Movimientos de la Cuenta
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if movimientos %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Asiento</th>
+                        <th>Concepto</th>
+                        <th class="text-end">Debe</th>
+                        <th class="text-end">Haber</th>
+                        <th class="text-end">Saldo Parcial</th>
+                        <th class="text-end">Saldo Final</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movimiento in movimientos %}
+                    <tr>
+                        <td>{{ movimiento.asiento.fecha }}</td>
+                        <td>
+                            <strong>#{{ movimiento.asiento.numero_asiento }}</strong>
+                            <br><small class="text-muted">{{ movimiento.asiento.ejercicio.nombre }}</small>
+                        </td>
+                        <td>
+                            {{ movimiento.asiento.concepto|truncatewords:8 }}
+                            {% if movimiento.descripcion %}
+                            <br><small class="text-muted">{{ movimiento.descripcion }}</small>
+                            {% endif %}
+                        </td>
+                        <td class="text-end text-success">
+                            {% if movimiento.debe > 0 %}
+                            ${{ movimiento.debe|floatformat:2 }}
+                            {% else %}
+                            <span class="text-muted">$0.00</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end text-danger">
+                            {% if movimiento.haber > 0 %}
+                            ${{ movimiento.haber|floatformat:2 }}
+                            {% else %}
+                            <span class="text-muted">$0.00</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <small class="text-muted">${{ movimiento.saldo_parcial|floatformat:2 }}</small>
+                        </td>
+                        <td class="text-end">
+                            <strong class="{% if movimiento.saldo_final >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                ${{ movimiento.saldo_final|floatformat:2 }}
+                            </strong>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="table-dark">
+                    <tr>
+                        <td colspan="3"><strong>TOTALES Y SALDO FINAL</strong></td>
+                        <td class="text-end">
+                            <strong>${{ total_debe|floatformat:2 }}</strong>
+                        </td>
+                        <td class="text-end">
+                            <strong>${{ total_haber|floatformat:2 }}</strong>
+                        </td>
+                        <td colspan="2" class="text-end">
+                            <strong class="{% if saldo_actual >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                SALDO: ${{ saldo_actual|floatformat:2 }}
+                            </strong>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Resumen Estadístico -->
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h6>Total Movimientos</h6>
+                        <h4 class="text-primary">{{ movimientos|length }}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h6>Total Débitos</h6>
+                        <h4 class="text-success">${{ total_debe|floatformat:2 }}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h6>Total Créditos</h6>
+                        <h4 class="text-danger">${{ total_haber|floatformat:2 }}</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card {% if saldo_actual >= 0 %}bg-success text-white{% else %}bg-warning{% endif %}">
+                    <div class="card-body text-center">
+                        <h6>Saldo Final</h6>
+                        <h4>${{ saldo_actual|floatformat:2 }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">No hay movimientos</h4>
+            <p class="text-muted">La cuenta seleccionada no tiene movimientos registrados.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<!-- Estado inicial -->
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">Selecciona una cuenta contable</h4>
+        <p class="text-muted">Elige una cuenta del listado para ver su libro mayor con todos los movimientos.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

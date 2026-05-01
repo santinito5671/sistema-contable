@@ -1,0 +1,176 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Estado de Resultados - Contabilidad SA{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-chart-line"></i> Estado de Resultados</h2>
+    <div>
+        <a href="/exportar/estado-resultados-csv/" class="btn btn-outline-success">
+            <i class="fas fa-download"></i> Exportar
+        </a>
+        <a href="/" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-file-invoice-dollar"></i> Estado de Resultados - {{ periodo }}
+        </h5>
+    </div>
+    <div class="card-body">
+        <!-- Resumen Principal -->
+        <div class="row mb-5">
+            <div class="col-md-4">
+                <div class="card {% if ingresos > 0 %}bg-success text-white{% else %}bg-light{% endif %}">
+                    <div class="card-body text-center">
+                        <h6>Total Ingresos</h6>
+                        <h3>${{ ingresos|floatformat:2 }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card {% if gastos > 0 %}bg-danger text-white{% else %}bg-light{% endif %}">
+                    <div class="card-body text-center">
+                        <h6>Total Gastos</h6>
+                        <h3>${{ gastos|floatformat:2 }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card {% if utilidad_neta >= 0 %}bg-primary text-white{% else %}bg-warning{% endif %}">
+                    <div class="card-body text-center">
+                        <h6>Resultado del Ejercicio</h6>
+                        <h3>${{ utilidad_neta|floatformat:2 }}</h3>
+                        <small>
+                            {% if utilidad_neta > 0 %}
+                                <i class="fas fa-arrow-up"></i> UTILIDAD
+                            {% elif utilidad_neta < 0 %}
+                                <i class="fas fa-arrow-down"></i> PÉRDIDA
+                            {% else %}
+                                EQUILIBRIO
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detalle de Ingresos -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0"><i class="fas fa-arrow-up"></i> INGRESOS</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if categorias_ingresos %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Cuenta</th>
+                                        <th class="text-end">Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ingreso in categorias_ingresos %}
+                                    <tr>
+                                        <td>
+                                            <small>{{ ingreso.cuenta__codigo }}</small><br>
+                                            <small class="text-muted">{{ ingreso.cuenta__nombre_cuenta }}</small>
+                                        </td>
+                                        <td class="text-end text-success">
+                                            <strong>${{ ingreso.total|floatformat:2 }}</strong>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-success">
+                                        <td><strong>TOTAL INGRESOS</strong></td>
+                                        <td class="text-end"><strong>${{ ingresos|floatformat:2 }}</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center">No hay ingresos registrados</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalle de Gastos -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0"><i class="fas fa-arrow-down"></i> GASTOS</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if categorias_gastos %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Cuenta</th>
+                                        <th class="text-end">Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for gasto in categorias_gastos %}
+                                    <tr>
+                                        <td>
+                                            <small>{{ gasto.cuenta__codigo }}</small><br>
+                                            <small class="text-muted">{{ gasto.cuenta__nombre_cuenta }}</small>
+                                        </td>
+                                        <td class="text-end text-danger">
+                                            <strong>${{ gasto.total|floatformat:2 }}</strong>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-danger">
+                                        <td><strong>TOTAL GASTOS</strong></td>
+                                        <td class="text-end"><strong>${{ gastos|floatformat:2 }}</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center">No hay gastos registrados</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen Final -->
+        <div class="row mt-4">
+            <div class="col-md-8 offset-md-2">
+                <div class="card {% if utilidad_neta >= 0 %}border-success{% else %}border-danger{% endif %}">
+                    <div class="card-body text-center">
+                        <h5>RESULTADO FINAL DEL EJERCICIO</h5>
+                        <h2 class="{% if utilidad_neta >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            ${{ utilidad_neta|floatformat:2 }}
+                        </h2>
+                        <p class="mb-0">
+                            {% if utilidad_neta > 0 %}
+                            <span class="text-success"><i class="fas fa-check-circle"></i> LA EMPRESA GENERÓ UTILIDADES</span>
+                            {% elif utilidad_neta < 0 %}
+                            <span class="text-danger"><i class="fas fa-exclamation-triangle"></i> LA EMPRESA REGISTRÓ PÉRDIDAS</span>
+                            {% else %}
+                            <span class="text-muted">LA EMPRESA ESTÁ EN EQUILIBRIO</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Asiento #{{ asiento.numero_asiento }} - Contabilidad SA{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-file-invoice"></i> 
+        Asiento Contable #{{ asiento.numero_asiento }}
+    </h2>
+    <div>
+        <a href="/asientos/" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver a Lista
+        </a>
+    </div>
+</div>
+
+<!-- Información General del Asiento -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-info-circle"></i> Información del Asiento
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <strong>Número:</strong><br>
+                <h4>#{{ asiento.numero_asiento }}</h4>
+            </div>
+            <div class="col-md-3">
+                <strong>Fecha:</strong><br>
+                <h4>{{ asiento.fecha }}</h4>
+            </div>
+            <div class="col-md-3">
+                <strong>Ejercicio:</strong><br>
+                <h4>{{ asiento.ejercicio.nombre }}</h4>
+            </div>
+            <div class="col-md-3">
+                <strong>Tipo:</strong><br>
+                <h4>
+                    <span class="badge {% if asiento.tipo_asiento == 'RG' %}bg-success{% else %}bg-warning{% endif %}">
+                        {{ asiento.get_tipo_asiento_display }}
+                    </span>
+                </h4>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-12">
+                <strong>Concepto:</strong><br>
+                <p class="fs-5">{{ asiento.concepto }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detalles del Asiento -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="fas fa-list"></i> Detalles del Asiento
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Cuenta</th>
+                        <th>Descripción</th>
+                        <th class="text-end">Debe</th>
+                        <th class="text-end">Haber</th>
+                        <th>Tipo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for detalle in detalles %}
+                    <tr>
+                        <td>
+                            <strong>{{ detalle.cuenta.codigo }}</strong><br>
+                            <small class="text-muted">{{ detalle.cuenta.nombre_cuenta }}</small>
+                        </td>
+                        <td>
+                            {% if detalle.descripcion %}
+                                {{ detalle.descripcion }}
+                            {% else %}
+                                <span class="text-muted">Sin descripción adicional</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if detalle.debe > 0 %}
+                            <span class="text-success fw-bold">${{ detalle.debe|floatformat:2 }}</span>
+                            {% else %}
+                            <span class="text-muted">$0.00</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if detalle.haber > 0 %}
+                            <span class="text-danger fw-bold">${{ detalle.haber|floatformat:2 }}</span>
+                            {% else %}
+                            <span class="text-muted">$0.00</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if detalle.cuenta.tipo_cuenta == 'A' %}bg-success
+                                {% elif detalle.cuenta.tipo_cuenta == 'P' %}bg-danger
+                                {% elif detalle.cuenta.tipo_cuenta == 'C' %}bg-primary
+                                {% elif detalle.cuenta.tipo_cuenta == 'I' %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {{ detalle.cuenta.get_tipo_cuenta_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="table-dark">
+                    <tr>
+                        <td colspan="2"><strong>TOTALES</strong></td>
+                        <td class="text-end"><strong class="text-success">${{ asiento.total_debe|floatformat:2 }}</strong></td>
+                        <td class="text-end"><strong class="text-danger">${{ asiento.total_haber|floatformat:2 }}</strong></td>
+                        <td>
+                            {% if asiento.total_debe == asiento.total_haber %}
+                            <span class="badge bg-success">BALANCEADO</span>
+                            {% else %}
+                            <span class="badge bg-danger">DESBALANCEADO</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Resumen -->
+<div class="row">
+    <div class="col-md-4">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h6>Total Líneas</h6>
+                <h4 class="text-primary">{{ detalles|length }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card {% if asiento.total_debe == asiento.total_haber %}bg-success text-white{% else %}bg-danger text-white{% endif %}">
+            <div class="card-body text-center">
+                <h6>Estado</h6>
+                <h4>
+                    {% if asiento.total_debe == asiento.total_haber %}
+                    <i class="fas fa-check-circle"></i> Balanceado
+                    {% else %}
+                    <i class="fas fa-exclamation-triangle"></i> Desbalanceado
+                    {% endif %}
+                </h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h6>Diferencia</h6>
+                <h4>${{ asiento.total_debe|floatformat:2 }} = ${{ asiento.total_haber|floatformat:2 }}</h4>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
