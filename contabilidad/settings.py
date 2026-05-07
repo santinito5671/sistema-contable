@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
 
 load_dotenv()
 
@@ -64,6 +65,7 @@ DATABASES = {
         'OPTIONS': {
             'client_encoding': 'UTF8',
         }
+
     }
 }
 
